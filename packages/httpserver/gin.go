@@ -12,9 +12,10 @@ import (
 var _ HTTPServer = (*ginHTTPServer)(nil)
 
 type ginHTTPServer struct {
-	cfg    *config.Config
-	server *http.Server
-	notify chan error
+	cfg      *config.Config
+	server   *http.Server
+	router   *gin.Engine
+	notifyCh chan error
 }
 
 func NewGinHTTPServer(cfg *config.Config) *ginHTTPServer {
@@ -28,21 +29,26 @@ func NewGinHTTPServer(cfg *config.Config) *ginHTTPServer {
 	}
 
 	return &ginHTTPServer{
-		cfg:    cfg,
-		server: httpServer,
-		notify: make(chan error, 1),
+		cfg:      cfg,
+		server:   httpServer,
+		router:   router,
+		notifyCh: make(chan error, 1),
 	}
 }
 
 func (s *ginHTTPServer) Start() {
 	go func() {
-		s.notify <- s.server.ListenAndServe()
-		close(s.notify)
+		s.notifyCh <- s.server.ListenAndServe()
+		close(s.notifyCh)
 	}()
 }
 
 func (s *ginHTTPServer) Notify() <-chan error {
-	return s.notify
+	return s.notifyCh
+}
+
+func (s *ginHTTPServer) Router() interface{} {
+	return s.router
 }
 
 func (s *ginHTTPServer) Shutdown() error {
