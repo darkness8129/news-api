@@ -41,7 +41,10 @@ func (s *postService) Get(ctx context.Context, id string) (*entity.Post, error) 
 	post, err := s.storages.Post.Get(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get post: %w", err)
-	} // TODO: add expected err when post isn't found
+	}
+	if post == nil { // TODO: handle as expected
+		return nil, fmt.Errorf("post not found")
+	}
 
 	return post, nil
 }

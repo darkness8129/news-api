@@ -2,8 +2,11 @@ package app
 
 import (
 	httpcontroller "darkness8129/news-api/app/controller/http"
+	"darkness8129/news-api/app/entity"
 	"darkness8129/news-api/app/service"
+	"darkness8129/news-api/app/storage"
 	"darkness8129/news-api/config"
+	"darkness8129/news-api/packages/database"
 	"darkness8129/news-api/packages/httpserver"
 	"fmt"
 	"os"
@@ -14,13 +17,28 @@ import (
 )
 
 func Start(cfg *config.Config) {
+	db, err := database.NewPostgreSQLDatabase(cfg)
+	if err != nil {
+		os.Exit(1)
+		fmt.Println("failed to init postgresql db: ", err)
+	}
+
+	err = db.DB.AutoMigrate(&entity.Post{})
+	if err != nil {
+		os.Exit(1)
+		fmt.Println("automigration failed: ", err)
+	}
+
+	storages := service.Storages{
+		Post: storage.NewPostService(db),
+	}
+
 	services := service.Services{
-		Post: service.NewPostService(service.Storages{}),
+		Post: service.NewPostService(storages),
 	}
 
 	httpServer := httpserver.NewGinHTTPServer(cfg)
 	router := httpServer.Router().(*gin.Engine)
-	fmt.Println("here")
 
 	httpcontroller.New(httpcontroller.Options{
 		Router:   router,
@@ -40,8 +58,13 @@ func Start(cfg *config.Config) {
 		fmt.Println("err from notify ch: ", err)
 	}
 
-	err := httpServer.Shutdown()
+	err = httpServer.Shutdown()
 	if err != nil {
-		fmt.Println("failed to shutdown")
+		fmt.Println("failed to shutdown server: ", err)
+	}
+
+	err = db.Close()
+	if err != nil {
+		fmt.Println("failed to close db connection: ", err)
 	}
 }

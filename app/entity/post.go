@@ -14,5 +14,5 @@ type Post struct {
 
 	CreatedAt time.Time      `json:"createdAt,omitempty" gorm:"index"`
 	UpdatedAt time.Time      `json:"updatedAt,omitempty"`
-	DeletedAt gorm.DeletedAt `json:"deletedAt,omitempty"`
+	DeletedAt gorm.DeletedAt `json:"-"`
 }
