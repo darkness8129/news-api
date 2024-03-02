@@ -7,10 +7,10 @@ import (
 	"gorm.io/gorm"
 )
 
-var _ Database = (*PostgreSQLDatabase)(nil)
+var _ Database = (*postgreSQLDatabase)(nil)
 
-type PostgreSQLDatabase struct {
-	DB *gorm.DB
+type postgreSQLDatabase struct {
+	db *gorm.DB
 }
 
 type Options struct {
@@ -20,7 +20,7 @@ type Options struct {
 	Host     string
 }
 
-func NewPostgreSQLDatabase(opt Options) (*PostgreSQLDatabase, error) {
+func NewPostgreSQLDatabase(opt Options) (*postgreSQLDatabase, error) {
 	dsn := fmt.Sprintf(
 		"user=%s password=%s dbname=%s host=%s",
 		opt.User, opt.Password, opt.Database, opt.Host,
@@ -38,14 +38,16 @@ func NewPostgreSQLDatabase(opt Options) (*PostgreSQLDatabase, error) {
 		return nil, fmt.Errorf("failed to create uuid-ossp extension: %w", err)
 	}
 
-	return &PostgreSQLDatabase{
-		DB: db,
-	}, nil
+	return &postgreSQLDatabase{db}, nil
 }
 
-func (p *PostgreSQLDatabase) Close() error {
+func (s *postgreSQLDatabase) DB() interface{} {
+	return s.db
+}
+
+func (p *postgreSQLDatabase) Close() error {
 	if p.DB != nil {
-		db, err := p.DB.DB()
+		db, err := p.db.DB()
 		if err != nil {
 			return fmt.Errorf("failed to get db: %w", err)
 		}

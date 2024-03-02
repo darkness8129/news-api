@@ -14,10 +14,12 @@ import (
 	"syscall"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 func Start(cfg *config.Config) {
-	db, err := database.NewPostgreSQLDatabase(database.Options{
+	// connect to DB
+	sql, err := database.NewPostgreSQLDatabase(database.Options{
 		User:     cfg.PostgreSQL.User,
 		Password: cfg.PostgreSQL.Password,
 		Database: cfg.PostgreSQL.Database,
@@ -28,26 +30,38 @@ func Start(cfg *config.Config) {
 		fmt.Println("failed to init postgresql db: ", err)
 	}
 
-	err = db.DB.AutoMigrate(&entity.Post{})
+	db, ok := sql.DB().(*gorm.DB)
+	if !ok {
+		os.Exit(1)
+		fmt.Println("failed type assertion for db")
+	}
+
+	err = db.AutoMigrate(&entity.Post{})
 	if err != nil {
 		os.Exit(1)
 		fmt.Println("automigration failed: ", err)
 	}
 
+	// init storages and services
 	storages := service.Storages{
 		Post: storage.NewPostService(db),
 	}
-
 	services := service.Services{
 		Post: service.NewPostService(storages),
 	}
 
+	// init http server and start it
 	httpServer := httpserver.NewGinHTTPServer(httpserver.Options{
 		Addr:         cfg.HTTP.Addr,
 		WriteTimeout: cfg.HTTP.WriteTimeout,
 		ReadTimeout:  cfg.HTTP.ReadTimeout,
 	})
+
 	router := httpServer.Router().(*gin.Engine)
+	if !ok {
+		os.Exit(1)
+		fmt.Println("failed type assertion for router")
+	}
 
 	httpcontroller.New(httpcontroller.Options{
 		Router:   router,
@@ -72,7 +86,7 @@ func Start(cfg *config.Config) {
 		fmt.Println("failed to shutdown server: ", err)
 	}
 
-	err = db.Close()
+	err = sql.Close()
 	if err != nil {
 		fmt.Println("failed to close db connection: ", err)
 	}

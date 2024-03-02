@@ -13,7 +13,7 @@ func main() {
 	var cfg config.Config
 	err := cleanenv.ReadEnv(&cfg)
 	if err != nil {
-		fmt.Println("failed to read cfg: ", err)
+		fmt.Println("failed to read config: ", err)
 		os.Exit(1)
 	}
 
