@@ -30,13 +30,27 @@ func newPostController(opt routerOptions) {
 	group.DELETE(":id", errorDecorator(logger, c.delete))
 }
 
+type postDTO struct {
+	ID      string `json:"id"`
+	Title   string `json:"title"`
+	Content string `json:"content"`
+}
+
+func ToPostDTO(p *entity.Post) *postDTO {
+	return &postDTO{
+		ID:      p.ID,
+		Title:   p.Title,
+		Content: p.Content,
+	}
+}
+
 type createPostBody struct {
 	Title   string `json:"title" binding:"required"`
 	Content string `json:"content" binding:"required"`
 }
 
 type createPostResponse struct {
-	Post *entity.Post `json:"post"`
+	Post *postDTO `json:"post"`
 }
 
 func (ctrl *postController) create(c *gin.Context) (interface{}, *httpErr) {
@@ -65,11 +79,11 @@ func (ctrl *postController) create(c *gin.Context) (interface{}, *httpErr) {
 	}
 
 	logger.Info("successfully created post", "post", post)
-	return createPostResponse{post}, nil
+	return createPostResponse{ToPostDTO(post)}, nil
 }
 
 type listPostsResponse struct {
-	Posts []entity.Post `json:"posts"`
+	Posts []*postDTO `json:"posts"`
 }
 
 func (ctrl *postController) list(c *gin.Context) (interface{}, *httpErr) {
@@ -86,8 +100,13 @@ func (ctrl *postController) list(c *gin.Context) (interface{}, *httpErr) {
 		return nil, &httpErr{Type: httpErrTypeServer, Message: "failed to list posts"}
 	}
 
+	var postsDTO []*postDTO
+	for _, p := range posts {
+		postsDTO = append(postsDTO, ToPostDTO(&p))
+	}
+
 	logger.Info("successfully listed posts", "posts", posts)
-	return listPostsResponse{posts}, nil
+	return listPostsResponse{postsDTO}, nil
 }
 
 type getPostPathParams struct {
@@ -95,7 +114,7 @@ type getPostPathParams struct {
 }
 
 type getPostResponse struct {
-	Post *entity.Post `json:"post"`
+	Post *postDTO `json:"post"`
 }
 
 func (ctrl *postController) get(c *gin.Context) (interface{}, *httpErr) {
@@ -121,7 +140,7 @@ func (ctrl *postController) get(c *gin.Context) (interface{}, *httpErr) {
 	}
 
 	logger.Info("successfully got post", "post", post)
-	return getPostResponse{post}, nil
+	return getPostResponse{ToPostDTO(post)}, nil
 }
 
 type updatePostPathParams struct {
@@ -134,7 +153,7 @@ type updatePostBody struct {
 }
 
 type updatePostResponse struct {
-	Post *entity.Post `json:"post"`
+	Post *postDTO `json:"post"`
 }
 
 func (ctrl *postController) update(c *gin.Context) (interface{}, *httpErr) {
@@ -171,7 +190,7 @@ func (ctrl *postController) update(c *gin.Context) (interface{}, *httpErr) {
 	}
 
 	logger.Info("successfully updated post", "updatedPost", updatedPost)
-	return updatePostResponse{updatedPost}, nil
+	return updatePostResponse{ToPostDTO(updatedPost)}, nil
 }
 
 type deletePostPathParams struct {
