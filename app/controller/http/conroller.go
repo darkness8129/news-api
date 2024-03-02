@@ -2,6 +2,7 @@ package httpcontroller
 
 import (
 	"darkness8129/news-api/app/service"
+	"darkness8129/news-api/packages/logging"
 	"fmt"
 	"net/http"
 
@@ -11,11 +12,13 @@ import (
 type Options struct {
 	Router   *gin.Engine
 	Services service.Services
+	Logger   logging.Logger
 }
 
 type routerOptions struct {
 	RouterGroup *gin.RouterGroup
 	Services    service.Services
+	Logger      logging.Logger
 }
 
 func New(opt Options) {
@@ -24,6 +27,7 @@ func New(opt Options) {
 	routerOpt := routerOptions{
 		RouterGroup: opt.Router.Group("/api/v1"),
 		Services:    opt.Services,
+		Logger:      opt.Logger.Named("httpController"),
 	}
 
 	newPostController(routerOpt)
@@ -57,16 +61,18 @@ const (
 	httpErrTypeClient httpErrType = "client"
 )
 
-// errorHandler provides unified error handling for all http controllers
-func errorHandler(handler func(c *gin.Context) (interface{}, *httpErr)) gin.HandlerFunc {
+// errorDecorator provides unified error handling for all http controllers
+func errorDecorator(logger logging.Logger, handler func(c *gin.Context) (interface{}, *httpErr)) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		logger := logger.Named("errorHandler")
+
 		// handle panics
 		defer func() {
 			err := recover()
 			if err != nil {
 				err := c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("%w", err))
 				if err != nil {
-					fmt.Println("failed to abort with error", "err", err)
+					logger.Error("failed to abort with error", "err", err)
 				}
 			}
 		}()
@@ -74,14 +80,17 @@ func errorHandler(handler func(c *gin.Context) (interface{}, *httpErr)) gin.Hand
 		body, err := handler(c)
 		if err != nil {
 			if err.Type == httpErrTypeServer {
+				logger.Error("internal server error", "err", err)
 				c.AbortWithStatusJSON(http.StatusInternalServerError, err)
 			} else {
+				logger.Info("expected client error", "err", err)
 				c.AbortWithStatusJSON(http.StatusUnprocessableEntity, err)
 			}
 
 			return
 		}
 
+		logger.Info("successfully handled request")
 		c.JSON(http.StatusOK, body)
 	}
 }

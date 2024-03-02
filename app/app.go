@@ -65,6 +65,7 @@ func Start(cfg *config.Config, logger logging.Logger) {
 	httpcontroller.New(httpcontroller.Options{
 		Router:   router,
 		Services: services,
+		Logger:   logger,
 	})
 
 	httpServer.Start()
