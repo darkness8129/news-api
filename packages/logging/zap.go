@@ -40,15 +40,11 @@ func NewZapLogger() (*zapLogger, error) {
 		return nil, fmt.Errorf("failed to construct logger: %w", err)
 	}
 
-	return &zapLogger{
-		logger: logger.Sugar(),
-	}, nil
+	return &zapLogger{logger.Sugar()}, nil
 }
 
 func (l *zapLogger) Named(name string) Logger {
-	return &zapLogger{
-		logger: l.logger.Named(name),
-	}
+	return &zapLogger{l.logger.Named(name)}
 }
 
 func (l *zapLogger) Debug(message string, args ...interface{}) {

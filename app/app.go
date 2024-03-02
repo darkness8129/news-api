@@ -26,6 +26,7 @@ func Start(cfg *config.Config, logger logging.Logger) {
 		Password: cfg.PostgreSQL.Password,
 		Database: cfg.PostgreSQL.Database,
 		Host:     cfg.PostgreSQL.Host,
+		Logger:   logger,
 	})
 	if err != nil {
 		logger.Fatal("failed to init postgresql db", "err", err)
@@ -88,4 +89,6 @@ func Start(cfg *config.Config, logger logging.Logger) {
 	if err != nil {
 		logger.Error("failed to close db connection", "err", err)
 	}
+
+	logger.Info("successful shutdown")
 }

@@ -42,8 +42,8 @@ func NewGinHTTPServer(opt Options) *ginHTTPServer {
 
 func (s *ginHTTPServer) Start() {
 	go func() {
+		defer close(s.notifyCh)
 		s.notifyCh <- s.server.ListenAndServe()
-		close(s.notifyCh)
 	}()
 }
 

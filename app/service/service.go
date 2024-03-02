@@ -41,7 +41,7 @@ type UpdatePostOpt struct {
 
 type Storages struct {
 	Post PostStorage
-	// other storages should ber here
+	// other storages should be here
 }
 
 type PostStorage interface {
