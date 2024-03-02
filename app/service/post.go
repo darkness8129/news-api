@@ -42,8 +42,8 @@ func (s *postService) Get(ctx context.Context, id string) (*entity.Post, error) 
 	if err != nil {
 		return nil, fmt.Errorf("failed to get post: %w", err)
 	}
-	if post == nil { // TODO: handle as expected
-		return nil, fmt.Errorf("post not found")
+	if post == nil {
+		return nil, ErrGetPostNotFound
 	}
 
 	return post, nil

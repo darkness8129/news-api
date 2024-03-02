@@ -3,10 +3,17 @@ package service
 import (
 	"context"
 	"darkness8129/news-api/app/entity"
+	"darkness8129/news-api/packages/errs"
+)
+
+const (
+	postNotFoundErrCode = "post_not_found"
+	// other err codes should be here
 )
 
 type Services struct {
 	Post PostService
+	// other services should be here
 }
 
 type PostService interface {
@@ -16,6 +23,11 @@ type PostService interface {
 	Update(ctx context.Context, id string, opt UpdatePostOpt) (*entity.Post, error)
 	Delete(ctx context.Context, id string) error
 }
+
+var (
+	ErrGetPostNotFound = errs.New(errs.Options{Message: "post not found", Code: postNotFoundErrCode})
+	// other expected errors for this service should be here
+)
 
 type CreatePostOpt struct {
 	Title   string
@@ -29,6 +41,7 @@ type UpdatePostOpt struct {
 
 type Storages struct {
 	Post PostStorage
+	// other storages should ber here
 }
 
 type PostStorage interface {

@@ -3,8 +3,7 @@ package httpcontroller
 import (
 	"darkness8129/news-api/app/entity"
 	"darkness8129/news-api/app/service"
-	"fmt"
-	"net/http"
+	"darkness8129/news-api/packages/errs"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,11 +18,11 @@ func newPostController(opt routerOptions) {
 	}
 
 	group := opt.RouterGroup.Group("/posts")
-	group.POST("", c.create)
-	group.GET("", c.list)
-	group.GET(":id", c.get)
-	group.PUT(":id", c.update)
-	group.DELETE(":id", c.delete)
+	group.POST("", errorHandler(c.create))
+	group.GET("", errorHandler(c.list))
+	group.GET(":id", errorHandler(c.get))
+	group.PUT(":id", errorHandler(c.update))
+	group.DELETE(":id", errorHandler(c.delete))
 }
 
 type createPostBody struct {
@@ -35,12 +34,11 @@ type createPostResponse struct {
 	Post *entity.Post `json:"post"`
 }
 
-func (ctrl *postController) create(c *gin.Context) {
+func (ctrl *postController) create(c *gin.Context) (interface{}, *httpErr) {
 	var body createPostBody
 	err := c.ShouldBindJSON(&body)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Errorf("invalid request body: %w", err).Error()})
-		return
+		return nil, &httpErr{Type: httpErrTypeClient, Message: "invalid request body"}
 	}
 
 	post, err := ctrl.services.Post.Create(c, service.CreatePostOpt{
@@ -48,25 +46,31 @@ func (ctrl *postController) create(c *gin.Context) {
 		Content: body.Content,
 	})
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": fmt.Errorf("failed to create post: %w", err).Error()})
-		return
+		if errs.IsExpected(err) {
+			return nil, &httpErr{Type: httpErrTypeClient, Message: err.Error(), Code: errs.Code(err)}
+		}
+
+		return nil, &httpErr{Type: httpErrTypeServer, Message: "failed to create post"}
 	}
 
-	c.JSON(http.StatusOK, createPostResponse{post})
+	return createPostResponse{post}, nil
 }
 
 type listPostsResponse struct {
 	Posts []entity.Post `json:"posts"`
 }
 
-func (ctrl *postController) list(c *gin.Context) {
+func (ctrl *postController) list(c *gin.Context) (interface{}, *httpErr) {
 	posts, err := ctrl.services.Post.List(c)
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": fmt.Errorf("failed to list posts: %w", err).Error()})
-		return
+		if errs.IsExpected(err) {
+			return nil, &httpErr{Type: httpErrTypeClient, Message: err.Error(), Code: errs.Code(err)}
+		}
+
+		return nil, &httpErr{Type: httpErrTypeServer, Message: "failed to list posts"}
 	}
 
-	c.JSON(http.StatusOK, listPostsResponse{posts})
+	return listPostsResponse{posts}, nil
 }
 
 type getPostPathParams struct {
@@ -77,20 +81,23 @@ type getPostResponse struct {
 	Post *entity.Post `json:"post"`
 }
 
-func (ctrl *postController) get(c *gin.Context) {
+func (ctrl *postController) get(c *gin.Context) (interface{}, *httpErr) {
 	var pathParams getPostPathParams
 	err := c.ShouldBindUri(&pathParams)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Errorf("invalid path params: %w", err).Error()})
+		return nil, &httpErr{Type: httpErrTypeClient, Message: "invalid path params"}
 	}
 
 	post, err := ctrl.services.Post.Get(c, pathParams.ID)
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": fmt.Errorf("failed to get post: %w", err).Error()})
-		return
+		if errs.IsExpected(err) {
+			return nil, &httpErr{Type: httpErrTypeClient, Message: err.Error(), Code: errs.Code(err)}
+		}
+
+		return nil, &httpErr{Type: httpErrTypeServer, Message: "failed to get post"}
 	}
 
-	c.JSON(http.StatusOK, getPostResponse{post})
+	return getPostResponse{post}, nil
 }
 
 type updatePostPathParams struct {
@@ -106,18 +113,17 @@ type updatePostResponse struct {
 	Post *entity.Post `json:"post"`
 }
 
-func (ctrl *postController) update(c *gin.Context) {
+func (ctrl *postController) update(c *gin.Context) (interface{}, *httpErr) {
 	var pathParams updatePostPathParams
 	err := c.ShouldBindUri(&pathParams)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Errorf("invalid path params: %w", err).Error()})
+		return nil, &httpErr{Type: httpErrTypeClient, Message: "invalid path params"}
 	}
 
 	var body updatePostBody
 	err = c.ShouldBindJSON(&body)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Errorf("invalid request body: %w", err).Error()})
-		return
+		return nil, &httpErr{Type: httpErrTypeClient, Message: "invalid request body"}
 	}
 
 	post, err := ctrl.services.Post.Update(c, pathParams.ID, service.UpdatePostOpt{
@@ -125,11 +131,14 @@ func (ctrl *postController) update(c *gin.Context) {
 		Content: body.Content,
 	})
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": fmt.Errorf("failed to create post: %w", err).Error()})
-		return
+		if errs.IsExpected(err) {
+			return nil, &httpErr{Type: httpErrTypeClient, Message: err.Error(), Code: errs.Code(err)}
+		}
+
+		return nil, &httpErr{Type: httpErrTypeServer, Message: "failed to update post"}
 	}
 
-	c.JSON(http.StatusOK, createPostResponse{post})
+	return createPostResponse{post}, nil
 }
 
 type deletePostPathParams struct {
@@ -139,18 +148,21 @@ type deletePostPathParams struct {
 type deletePostResponse struct {
 }
 
-func (ctrl *postController) delete(c *gin.Context) {
+func (ctrl *postController) delete(c *gin.Context) (interface{}, *httpErr) {
 	var pathParams updatePostPathParams
 	err := c.ShouldBindUri(&pathParams)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Errorf("invalid path params: %w", err).Error()})
+		return nil, &httpErr{Type: httpErrTypeClient, Message: "invalid path params"}
 	}
 
 	err = ctrl.services.Post.Delete(c, pathParams.ID)
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": fmt.Errorf("failed to delete post: %w", err).Error()})
-		return
+		if errs.IsExpected(err) {
+			return nil, &httpErr{Type: httpErrTypeClient, Message: err.Error(), Code: errs.Code(err)}
+		}
+
+		return nil, &httpErr{Type: httpErrTypeServer, Message: "failed to delete post"}
 	}
 
-	c.JSON(http.StatusOK, deletePostResponse{})
+	return deletePostResponse{}, nil
 }
