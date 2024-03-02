@@ -8,7 +8,7 @@ import (
 	"darkness8129/news-api/config"
 	"darkness8129/news-api/packages/database"
 	"darkness8129/news-api/packages/httpserver"
-	"fmt"
+	"darkness8129/news-api/packages/logging"
 	"os"
 	"os/signal"
 	"syscall"
@@ -17,7 +17,9 @@ import (
 	"gorm.io/gorm"
 )
 
-func Start(cfg *config.Config) {
+func Start(cfg *config.Config, logger logging.Logger) {
+	logger = logger.Named("app")
+
 	// connect to DB
 	sql, err := database.NewPostgreSQLDatabase(database.Options{
 		User:     cfg.PostgreSQL.User,
@@ -26,20 +28,17 @@ func Start(cfg *config.Config) {
 		Host:     cfg.PostgreSQL.Host,
 	})
 	if err != nil {
-		os.Exit(1)
-		fmt.Println("failed to init postgresql db: ", err)
+		logger.Fatal("failed to init postgresql db", "err", err)
 	}
 
 	db, ok := sql.DB().(*gorm.DB)
 	if !ok {
-		os.Exit(1)
-		fmt.Println("failed type assertion for db")
+		logger.Fatal("failed type assertion for db")
 	}
 
 	err = db.AutoMigrate(&entity.Post{})
 	if err != nil {
-		os.Exit(1)
-		fmt.Println("automigration failed: ", err)
+		logger.Fatal("automigration failed", "err", err)
 	}
 
 	// init storages and services
@@ -59,8 +58,7 @@ func Start(cfg *config.Config) {
 
 	router := httpServer.Router().(*gin.Engine)
 	if !ok {
-		os.Exit(1)
-		fmt.Println("failed type assertion for router")
+		logger.Fatal("failed type assertion for router")
 	}
 
 	httpcontroller.New(httpcontroller.Options{
@@ -76,18 +74,18 @@ func Start(cfg *config.Config) {
 
 	select {
 	case s := <-interrupt:
-		fmt.Println("app interrupt: ", s)
+		logger.Info("app interrupt", "signal", s.String())
 	case err := <-httpServer.Notify():
-		fmt.Println("err from notify ch: ", err)
+		logger.Error("err from notify ch", "err", err)
 	}
 
 	err = httpServer.Shutdown(cfg.ShutdownTimeout)
 	if err != nil {
-		fmt.Println("failed to shutdown server: ", err)
+		logger.Error("failed to shutdown server", "err", err)
 	}
 
 	err = sql.Close()
 	if err != nil {
-		fmt.Println("failed to close db connection: ", err)
+		logger.Error("failed to close db connection", "err", err)
 	}
 }

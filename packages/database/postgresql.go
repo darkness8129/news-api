@@ -41,8 +41,8 @@ func NewPostgreSQLDatabase(opt Options) (*postgreSQLDatabase, error) {
 	return &postgreSQLDatabase{db}, nil
 }
 
-func (s *postgreSQLDatabase) DB() interface{} {
-	return s.db
+func (p *postgreSQLDatabase) DB() interface{} {
+	return p.db
 }
 
 func (p *postgreSQLDatabase) Close() error {
