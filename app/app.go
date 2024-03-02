@@ -47,7 +47,7 @@ func Start(cfg *config.Config, logger logging.Logger) {
 		Post: storage.NewPostStorage(db, logger),
 	}
 	services := service.Services{
-		Post: service.NewPostService(storages),
+		Post: service.NewPostService(storages, logger),
 	}
 
 	// init http server and start it
