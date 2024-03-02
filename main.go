@@ -6,8 +6,6 @@ import (
 	"darkness8129/news-api/packages/logging"
 	"log"
 	"os"
-
-	"github.com/ilyakaznacheev/cleanenv"
 )
 
 func main() {
@@ -17,11 +15,10 @@ func main() {
 		os.Exit(1)
 	}
 
-	var cfg config.Config
-	err = cleanenv.ReadEnv(&cfg)
+	cfg, err := config.New()
 	if err != nil {
-		logger.Fatal("failed to read config", "err", err)
+		logger.Fatal("failed to get config", "err", err)
 	}
 
-	app.Start(&cfg, logger)
+	app.Start(cfg, logger)
 }

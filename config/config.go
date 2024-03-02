@@ -1,6 +1,11 @@
 package config
 
-import "time"
+import (
+	"fmt"
+	"time"
+
+	"github.com/ilyakaznacheev/cleanenv"
+)
 
 type (
 	Config struct {
@@ -22,3 +27,13 @@ type (
 		Database string `env:"POSTGRESQL_DATABASE" env-default:"news_api"`
 	}
 )
+
+func New() (*Config, error) {
+	var cfg Config
+	err := cleanenv.ReadEnv(&cfg)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read env: %w", err)
+	}
+
+	return &cfg, nil
+}
