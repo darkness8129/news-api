@@ -1,7 +1,6 @@
 package database
 
 import (
-	"darkness8129/news-api/config"
 	"fmt"
 
 	"gorm.io/driver/postgres"
@@ -11,14 +10,20 @@ import (
 var _ Database = (*PostgreSQLDatabase)(nil)
 
 type PostgreSQLDatabase struct {
-	cfg *config.Config
-	DB  *gorm.DB
+	DB *gorm.DB
 }
 
-func NewPostgreSQLDatabase(cfg *config.Config) (*PostgreSQLDatabase, error) {
+type Options struct {
+	User     string
+	Password string
+	Database string
+	Host     string
+}
+
+func NewPostgreSQLDatabase(opt Options) (*PostgreSQLDatabase, error) {
 	dsn := fmt.Sprintf(
 		"user=%s password=%s dbname=%s host=%s",
-		cfg.PostgreSQL.User, cfg.PostgreSQL.Password, cfg.PostgreSQL.Database, cfg.PostgreSQL.Host,
+		opt.User, opt.Password, opt.Database, opt.Host,
 	)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		PrepareStmt: true,
@@ -34,8 +39,7 @@ func NewPostgreSQLDatabase(cfg *config.Config) (*PostgreSQLDatabase, error) {
 	}
 
 	return &PostgreSQLDatabase{
-		cfg: cfg,
-		DB:  db,
+		DB: db,
 	}, nil
 }
 

@@ -17,7 +17,12 @@ import (
 )
 
 func Start(cfg *config.Config) {
-	db, err := database.NewPostgreSQLDatabase(cfg)
+	db, err := database.NewPostgreSQLDatabase(database.Options{
+		User:     cfg.PostgreSQL.User,
+		Password: cfg.PostgreSQL.Password,
+		Database: cfg.PostgreSQL.Database,
+		Host:     cfg.PostgreSQL.Host,
+	})
 	if err != nil {
 		os.Exit(1)
 		fmt.Println("failed to init postgresql db: ", err)
@@ -37,7 +42,11 @@ func Start(cfg *config.Config) {
 		Post: service.NewPostService(storages),
 	}
 
-	httpServer := httpserver.NewGinHTTPServer(cfg)
+	httpServer := httpserver.NewGinHTTPServer(httpserver.Options{
+		Addr:         cfg.HTTP.Addr,
+		WriteTimeout: cfg.HTTP.WriteTimeout,
+		ReadTimeout:  cfg.HTTP.ReadTimeout,
+	})
 	router := httpServer.Router().(*gin.Engine)
 
 	httpcontroller.New(httpcontroller.Options{
@@ -58,7 +67,7 @@ func Start(cfg *config.Config) {
 		fmt.Println("err from notify ch: ", err)
 	}
 
-	err = httpServer.Shutdown()
+	err = httpServer.Shutdown(cfg.ShutdownTimeout)
 	if err != nil {
 		fmt.Println("failed to shutdown server: ", err)
 	}

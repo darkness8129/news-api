@@ -1,8 +1,10 @@
 package httpserver
 
+import "time"
+
 type HTTPServer interface {
 	Start()
 	Notify() <-chan error
 	Router() interface{}
-	Shutdown() error
+	Shutdown(timeout time.Duration) error
 }

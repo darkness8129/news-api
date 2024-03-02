@@ -2,7 +2,7 @@ package httpserver
 
 import (
 	"context"
-	"darkness8129/news-api/config"
+	"time"
 
 	"net/http"
 
@@ -12,24 +12,28 @@ import (
 var _ HTTPServer = (*ginHTTPServer)(nil)
 
 type ginHTTPServer struct {
-	cfg      *config.Config
 	server   *http.Server
 	router   *gin.Engine
 	notifyCh chan error
 }
 
-func NewGinHTTPServer(cfg *config.Config) *ginHTTPServer {
+type Options struct {
+	Addr         string
+	WriteTimeout time.Duration
+	ReadTimeout  time.Duration
+}
+
+func NewGinHTTPServer(opt Options) *ginHTTPServer {
 	router := gin.New()
 
 	httpServer := &http.Server{
 		Handler:      router,
-		Addr:         cfg.HTTP.Addr,
-		WriteTimeout: cfg.HTTP.WriteTimeout,
-		ReadTimeout:  cfg.HTTP.ReadTimeout,
+		Addr:         opt.Addr,
+		WriteTimeout: opt.WriteTimeout,
+		ReadTimeout:  opt.ReadTimeout,
 	}
 
 	return &ginHTTPServer{
-		cfg:      cfg,
 		server:   httpServer,
 		router:   router,
 		notifyCh: make(chan error, 1),
@@ -51,8 +55,8 @@ func (s *ginHTTPServer) Router() interface{} {
 	return s.router
 }
 
-func (s *ginHTTPServer) Shutdown() error {
-	ctx, cancel := context.WithTimeout(context.Background(), s.cfg.ShutdownTimeout)
+func (s *ginHTTPServer) Shutdown(timeout time.Duration) error {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	return s.server.Shutdown(ctx)
