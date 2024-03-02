@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 )
 
 type Options struct {
@@ -49,9 +50,11 @@ func corsMiddleware(c *gin.Context) {
 
 // httpErr provides a base error type for all http controller errors
 type httpErr struct {
-	Type    httpErrType `json:"-"`
-	Code    string      `json:"code,omitempty"`
-	Message string      `json:"message"`
+	Type             httpErrType            `json:"-"`
+	Code             string                 `json:"code,omitempty"`
+	Message          string                 `json:"message"`
+	Details          interface{}            `json:"details,omitempty"`
+	ValidationErrors map[string]interface{} `json:"validationErrors,omitempty"`
 }
 
 type httpErrType string
@@ -83,6 +86,8 @@ func errorDecorator(logger logging.Logger, handler func(c *gin.Context) (interfa
 				logger.Error("internal server error", "err", err)
 				c.AbortWithStatusJSON(http.StatusInternalServerError, err)
 			} else {
+				handleValidationErrors(err)
+
 				logger.Info("expected client error", "err", err)
 				c.AbortWithStatusJSON(http.StatusUnprocessableEntity, err)
 			}
@@ -92,5 +97,29 @@ func errorDecorator(logger logging.Logger, handler func(c *gin.Context) (interfa
 
 		logger.Info("successfully handled request")
 		c.JSON(http.StatusOK, body)
+	}
+}
+
+func handleValidationErrors(err *httpErr) {
+	// checking whether validation errors exist
+	validationErrors, ok := err.Details.(validator.ValidationErrors)
+	if !ok {
+		return
+	}
+
+	err.Details = nil
+	err.ValidationErrors = make(map[string]interface{})
+	for _, e := range validationErrors {
+		fieldName := e.Field()
+		switch e.Tag() {
+		case "required":
+			err.ValidationErrors[fieldName] = "field is required"
+		case "max":
+			err.ValidationErrors[fieldName] = "maximum allowed characters exceeded"
+		case "uuid":
+			err.ValidationErrors[fieldName] = "invalid ID"
+		default:
+			err.ValidationErrors[fieldName] = "unknown validation error"
+		}
 	}
 }

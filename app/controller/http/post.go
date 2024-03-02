@@ -45,8 +45,8 @@ func ToPostDTO(p *entity.Post) *postDTO {
 }
 
 type createPostBody struct {
-	Title   string `json:"title" binding:"required"`
-	Content string `json:"content" binding:"required"`
+	Title   string `json:"title" binding:"required,max=50"`
+	Content string `json:"content" binding:"required,max=200"`
 }
 
 type createPostResponse struct {
@@ -60,7 +60,7 @@ func (ctrl *postController) create(c *gin.Context) (interface{}, *httpErr) {
 	err := c.ShouldBindJSON(&body)
 	if err != nil {
 		logger.Info("invalid request body", "err", err)
-		return nil, &httpErr{Type: httpErrTypeClient, Message: "invalid request body"}
+		return nil, &httpErr{Type: httpErrTypeClient, Message: "invalid request body", Details: err}
 	}
 	logger.Debug("parsed request body", "body", body)
 
@@ -110,7 +110,7 @@ func (ctrl *postController) list(c *gin.Context) (interface{}, *httpErr) {
 }
 
 type getPostPathParams struct {
-	ID string `uri:"id" json:"id" binding:"required"`
+	ID string `uri:"id" json:"id" binding:"required,uuid"`
 }
 
 type getPostResponse struct {
@@ -124,7 +124,7 @@ func (ctrl *postController) get(c *gin.Context) (interface{}, *httpErr) {
 	err := c.ShouldBindUri(&pathParams)
 	if err != nil {
 		logger.Info("invalid path params", "err", err)
-		return nil, &httpErr{Type: httpErrTypeClient, Message: "invalid path params"}
+		return nil, &httpErr{Type: httpErrTypeClient, Message: "invalid path params", Details: err}
 	}
 	logger.Debug("parsed path params", "pathParams", pathParams)
 
@@ -144,12 +144,12 @@ func (ctrl *postController) get(c *gin.Context) (interface{}, *httpErr) {
 }
 
 type updatePostPathParams struct {
-	ID string `uri:"id" json:"id" binding:"required"`
+	ID string `uri:"id" json:"id" binding:"required,uuid"`
 }
 
 type updatePostBody struct {
-	Title   string `json:"title" binding:"required"`
-	Content string `json:"content" binding:"required"`
+	Title   string `json:"title" binding:"required,max=50"`
+	Content string `json:"content" binding:"required,max=200"`
 }
 
 type updatePostResponse struct {
@@ -163,7 +163,7 @@ func (ctrl *postController) update(c *gin.Context) (interface{}, *httpErr) {
 	err := c.ShouldBindUri(&pathParams)
 	if err != nil {
 		logger.Info("invalid path params", "err", err)
-		return nil, &httpErr{Type: httpErrTypeClient, Message: "invalid path params"}
+		return nil, &httpErr{Type: httpErrTypeClient, Message: "invalid path params", Details: err}
 	}
 	logger.Debug("parsed path params", "pathParams", pathParams)
 
@@ -171,7 +171,7 @@ func (ctrl *postController) update(c *gin.Context) (interface{}, *httpErr) {
 	err = c.ShouldBindJSON(&body)
 	if err != nil {
 		logger.Info("invalid request body", "err", err)
-		return nil, &httpErr{Type: httpErrTypeClient, Message: "invalid request body"}
+		return nil, &httpErr{Type: httpErrTypeClient, Message: "invalid request body", Details: err}
 	}
 	logger.Debug("parsed request body", "body", body)
 
@@ -194,7 +194,7 @@ func (ctrl *postController) update(c *gin.Context) (interface{}, *httpErr) {
 }
 
 type deletePostPathParams struct {
-	ID string `uri:"id" json:"id" binding:"required"`
+	ID string `uri:"id" json:"id" binding:"required,uuid"`
 }
 
 type deletePostResponse struct {
@@ -207,7 +207,7 @@ func (ctrl *postController) delete(c *gin.Context) (interface{}, *httpErr) {
 	err := c.ShouldBindUri(&pathParams)
 	if err != nil {
 		logger.Info("invalid path params", "err", err)
-		return nil, &httpErr{Type: httpErrTypeClient, Message: "invalid path params"}
+		return nil, &httpErr{Type: httpErrTypeClient, Message: "invalid path params", Details: err}
 	}
 	logger.Debug("parsed path params", "pathParams", pathParams)
 
