@@ -44,7 +44,7 @@ func Start(cfg *config.Config, logger logging.Logger) {
 
 	// init storages and services
 	storages := service.Storages{
-		Post: storage.NewPostService(db),
+		Post: storage.NewPostStorage(db, logger),
 	}
 	services := service.Services{
 		Post: service.NewPostService(storages),
