@@ -16,7 +16,7 @@ type Options struct {
 	Logger   logging.Logger
 }
 
-type routerOptions struct {
+type controllerOptions struct {
 	RouterGroup *gin.RouterGroup
 	Services    service.Services
 	Logger      logging.Logger
@@ -25,13 +25,14 @@ type routerOptions struct {
 func New(opt Options) {
 	opt.Router.Use(gin.Logger(), gin.Recovery(), corsMiddleware)
 
-	routerOpt := routerOptions{
+	controllerOpt := controllerOptions{
 		RouterGroup: opt.Router.Group("/api/v1"),
 		Services:    opt.Services,
 		Logger:      opt.Logger.Named("httpController"),
 	}
 
-	newPostController(routerOpt)
+	newPostController(controllerOpt)
+	newDocsController(controllerOpt)
 	// other controllers should be here
 }
 
@@ -55,7 +56,7 @@ type httpErr struct {
 	Message          string                 `json:"message"`
 	Details          interface{}            `json:"details,omitempty"`
 	ValidationErrors map[string]interface{} `json:"validationErrors,omitempty"`
-}
+} // @name httpErr
 
 type httpErrType string
 

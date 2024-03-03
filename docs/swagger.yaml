@@ -1,0 +1,201 @@
+definitions:
+  Post:
+    properties:
+      content:
+        type: string
+      id:
+        type: string
+      title:
+        type: string
+    type: object
+  createPostBody:
+    properties:
+      content:
+        maxLength: 200
+        type: string
+      title:
+        maxLength: 50
+        type: string
+    required:
+    - content
+    - title
+    type: object
+  createPostResponse:
+    properties:
+      post:
+        $ref: '#/definitions/Post'
+    type: object
+  deletePostResponse:
+    type: object
+  getPostResponse:
+    properties:
+      post:
+        $ref: '#/definitions/Post'
+    type: object
+  httpErr:
+    properties:
+      code:
+        type: string
+      details: {}
+      message:
+        type: string
+      validationErrors:
+        additionalProperties: true
+        type: object
+    type: object
+  listPostsResponse:
+    properties:
+      posts:
+        items:
+          $ref: '#/definitions/Post'
+        type: array
+    type: object
+  updatePostBody:
+    properties:
+      content:
+        maxLength: 200
+        type: string
+      title:
+        maxLength: 50
+        type: string
+    required:
+    - content
+    - title
+    type: object
+  updatePostResponse:
+    properties:
+      post:
+        $ref: '#/definitions/Post'
+    type: object
+info:
+  contact: {}
+paths:
+  /posts:
+    get:
+      operationId: ListPosts
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/listPostsResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/httpErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httpErr'
+      summary: ListPosts provides the logic for retrieving all posts.
+    post:
+      consumes:
+      - application/json
+      operationId: CreatePost
+      parameters:
+      - description: data
+        in: body
+        name: fields
+        required: true
+        schema:
+          $ref: '#/definitions/createPostBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/createPostResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/httpErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httpErr'
+      summary: CreatePost provides the logic for creating a post with passed data.
+  /posts/{id}:
+    delete:
+      operationId: DeletePost
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/deletePostResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/httpErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httpErr'
+      summary: DeletePost provides the logic for deleting a post by its ID.
+    get:
+      operationId: GetPost
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/getPostResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/httpErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httpErr'
+      summary: GetPost provides the logic for retrieving a post by its ID.
+    put:
+      consumes:
+      - application/json
+      operationId: UpdatePost
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: data
+        in: body
+        name: fields
+        required: true
+        schema:
+          $ref: '#/definitions/updatePostBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/updatePostResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/httpErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httpErr'
+      summary: UpdatePost provides the logic for updating a post with passed data
+        by its ID.
+swagger: "2.0"

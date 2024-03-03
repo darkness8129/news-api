@@ -14,7 +14,7 @@ type postController struct {
 	logger   logging.Logger
 }
 
-func newPostController(opt routerOptions) {
+func newPostController(opt controllerOptions) {
 	logger := opt.Logger.Named("postController")
 
 	c := postController{
@@ -34,7 +34,7 @@ type postDTO struct {
 	ID      string `json:"id"`
 	Title   string `json:"title"`
 	Content string `json:"content"`
-}
+} // @name Post
 
 func ToPostDTO(p *entity.Post) *postDTO {
 	return &postDTO{
@@ -47,12 +47,20 @@ func ToPostDTO(p *entity.Post) *postDTO {
 type createPostBody struct {
 	Title   string `json:"title" binding:"required,max=50"`
 	Content string `json:"content" binding:"required,max=200"`
-}
+} // @name createPostBody
 
 type createPostResponse struct {
 	Post *postDTO `json:"post"`
-}
+} // @name createPostResponse
 
+// @ID           CreatePost
+// @Summary      CreatePost provides the logic for creating a post with passed data.
+// @Accept       application/json
+// @Produce      application/json
+// @Param        fields body createPostBody true "data"
+// @Success      200 {object} createPostResponse
+// @Failure      422,500 {object} httpErr
+// @Router       /posts [POST]
 func (ctrl *postController) create(c *gin.Context) (interface{}, *httpErr) {
 	logger := ctrl.logger.Named("create")
 
@@ -84,8 +92,14 @@ func (ctrl *postController) create(c *gin.Context) (interface{}, *httpErr) {
 
 type listPostsResponse struct {
 	Posts []*postDTO `json:"posts"`
-}
+} // @name listPostsResponse
 
+// @ID           ListPosts
+// @Summary      ListPosts provides the logic for retrieving all posts.
+// @Produce      application/json
+// @Success      200 {object} listPostsResponse
+// @Failure      422,500 {object} httpErr
+// @Router       /posts [GET]
 func (ctrl *postController) list(c *gin.Context) (interface{}, *httpErr) {
 	logger := ctrl.logger.Named("list")
 
@@ -111,12 +125,19 @@ func (ctrl *postController) list(c *gin.Context) (interface{}, *httpErr) {
 
 type getPostPathParams struct {
 	ID string `uri:"id" json:"id" binding:"required,uuid"`
-}
+} // @name getPostPathParams
 
 type getPostResponse struct {
 	Post *postDTO `json:"post"`
-}
+} // @name getPostResponse
 
+// @ID           GetPost
+// @Summary      GetPost provides the logic for retrieving a post by its ID.
+// @Produce      application/json
+// @Param        id path string true "Post ID"
+// @Success      200 {object} getPostResponse
+// @Failure      422,500 {object} httpErr
+// @Router       /posts/{id} [GET]
 func (ctrl *postController) get(c *gin.Context) (interface{}, *httpErr) {
 	logger := ctrl.logger.Named("get")
 
@@ -145,17 +166,26 @@ func (ctrl *postController) get(c *gin.Context) (interface{}, *httpErr) {
 
 type updatePostPathParams struct {
 	ID string `uri:"id" json:"id" binding:"required,uuid"`
-}
+} // @name updatePostPathParams
 
 type updatePostBody struct {
 	Title   string `json:"title" binding:"required,max=50"`
 	Content string `json:"content" binding:"required,max=200"`
-}
+} // @name updatePostBody
 
 type updatePostResponse struct {
 	Post *postDTO `json:"post"`
-}
+} // @name updatePostResponse
 
+// @ID           UpdatePost
+// @Summary      UpdatePost provides the logic for updating a post with passed data by its ID.
+// @Accept       application/json
+// @Produce      application/json
+// @Param        id path string true "Post ID"
+// @Param        fields body updatePostBody true "data"
+// @Success      200 {object} updatePostResponse
+// @Failure      422,500 {object} httpErr
+// @Router       /posts/{id} [PUT]
 func (ctrl *postController) update(c *gin.Context) (interface{}, *httpErr) {
 	logger := ctrl.logger.Named("update")
 
@@ -195,11 +225,18 @@ func (ctrl *postController) update(c *gin.Context) (interface{}, *httpErr) {
 
 type deletePostPathParams struct {
 	ID string `uri:"id" json:"id" binding:"required,uuid"`
-}
+} // @name deletePostPathParams
 
 type deletePostResponse struct {
-}
+} // @name deletePostResponse
 
+// @ID           DeletePost
+// @Summary      DeletePost provides the logic for deleting a post by its ID.
+// @Produce      application/json
+// @Param        id path string true "Post ID"
+// @Success      200 {object} deletePostResponse
+// @Failure      422,500 {object} httpErr
+// @Router       /posts/{id} [DELETE]
 func (ctrl *postController) delete(c *gin.Context) (interface{}, *httpErr) {
 	logger := ctrl.logger.Named("delete")
 
