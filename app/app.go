@@ -25,6 +25,7 @@ func Start(cfg *config.Config, logger logging.Logger) {
 		User:     cfg.PostgreSQL.User,
 		Password: cfg.PostgreSQL.Password,
 		Database: cfg.PostgreSQL.Database,
+		Port:     cfg.PostgreSQL.Port,
 		Host:     cfg.PostgreSQL.Host,
 		Logger:   logger,
 	})

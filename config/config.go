@@ -25,6 +25,7 @@ type (
 		Password string `env:"POSTGRESQL_PASSWORD" env-default:"postgres"`
 		Host     string `env:"POSTGRESQL_HOST" env-default:"localhost"`
 		Database string `env:"POSTGRESQL_DATABASE" env-default:"news_api"`
+		Port     string `env:"POSTGRESQL_PORT" env-default:"5432"`
 	}
 )
 

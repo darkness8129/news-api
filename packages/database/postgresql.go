@@ -19,6 +19,7 @@ type Options struct {
 	User     string
 	Password string
 	Database string
+	Port     string
 	Host     string
 	Logger   logging.Logger
 }
@@ -27,8 +28,8 @@ func NewPostgreSQLDatabase(opt Options) (*postgreSQLDatabase, error) {
 	logger := opt.Logger.Named("PostgreSQLDatabase")
 
 	dsn := fmt.Sprintf(
-		"user=%s password=%s dbname=%s host=%s",
-		opt.User, opt.Password, opt.Database, opt.Host,
+		"user=%s password=%s dbname=%s port=%s host=%s",
+		opt.User, opt.Password, opt.Database, opt.Port, opt.Host,
 	)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		PrepareStmt: true,
