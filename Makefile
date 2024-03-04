@@ -11,3 +11,7 @@ test:
 docs:
 	echo "generating docs..."
 	swag init -g ./main.go
+
+mocs:
+	echo "generating mocs..."
+	go generate ./...

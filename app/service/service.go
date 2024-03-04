@@ -41,6 +41,7 @@ type Storages struct {
 	// other storages should be here
 }
 
+//go:generate go run github.com/vektra/mockery/v2@v2.27.1 --dir . --name PostStorage --output ./mocks
 type PostStorage interface {
 	Create(ctx context.Context, post *entity.Post) (*entity.Post, error)
 	List(ctx context.Context) ([]entity.Post, error)

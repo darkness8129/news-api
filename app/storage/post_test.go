@@ -147,11 +147,11 @@ func TestPostStorage_List(t *testing.T) {
 		{
 			name: "List 2 posts",
 			postsToCreate: []entity.Post{
-				entity.Post{
+				{
 					Title:   "title",
 					Content: "content",
 				},
-				entity.Post{
+				{
 					Title:   "title",
 					Content: "content",
 				},
@@ -196,14 +196,14 @@ func TestPostStorage_Get(t *testing.T) {
 		name         string
 		postToCreate *entity.Post
 		inputID      string
-		expectedPost *entity.Post
+		expected     *entity.Post
 		expectErr    bool
 	}{
 		{
 			name:         "Get",
 			postToCreate: post,
 			inputID:      postID,
-			expectedPost: post,
+			expected:     post,
 		},
 		{
 			name:         "Get with wrong ID",
@@ -232,9 +232,9 @@ func TestPostStorage_Get(t *testing.T) {
 			actual, err := storage.Get(context.Background(), tc.inputID)
 			if !tc.expectErr {
 				require.NoError(t, err, "failed to get post")
-				require.Equal(t, tc.expectedPost.ID, actual.ID, "IDs are not equal")
-				require.Equal(t, tc.expectedPost.Title, actual.Title, "titles are not equal")
-				require.Equal(t, tc.expectedPost.Content, actual.Content, "content is not equal")
+				require.Equal(t, tc.expected.ID, actual.ID, "IDs are not equal")
+				require.Equal(t, tc.expected.Title, actual.Title, "titles are not equal")
+				require.Equal(t, tc.expected.Content, actual.Content, "content is not equal")
 			} else {
 				require.Error(t, err, "no error")
 				require.Nil(t, actual, "post is not nil")
@@ -256,7 +256,7 @@ func TestPostStorage_Update(t *testing.T) {
 		postToCreate *entity.Post
 		inputID      string
 		inputPost    *entity.Post
-		expectedPost *entity.Post
+		expected     *entity.Post
 		expectErr    bool
 	}{
 		{
@@ -267,7 +267,7 @@ func TestPostStorage_Update(t *testing.T) {
 				Content: "content updated",
 			},
 			inputID: postID,
-			expectedPost: &entity.Post{
+			expected: &entity.Post{
 				ID:      postID,
 				Title:   "title updated",
 				Content: "content updated",
@@ -280,7 +280,7 @@ func TestPostStorage_Update(t *testing.T) {
 				Title: "title updated",
 			},
 			inputID: postID,
-			expectedPost: &entity.Post{
+			expected: &entity.Post{
 				ID:      postID,
 				Title:   "title updated",
 				Content: "content",
@@ -291,7 +291,7 @@ func TestPostStorage_Update(t *testing.T) {
 			postToCreate: post,
 			inputPost:    &entity.Post{},
 			inputID:      postID,
-			expectedPost: post,
+			expected:     post,
 		},
 		{
 			name:         "Update with wrong ID",
@@ -328,9 +328,9 @@ func TestPostStorage_Update(t *testing.T) {
 			actual, err := storage.Update(context.Background(), tc.inputID, tc.inputPost)
 			if !tc.expectErr {
 				require.NoError(t, err, "failed to update post")
-				require.Equal(t, tc.expectedPost.ID, actual.ID, "IDs are not equal")
-				require.Equal(t, tc.expectedPost.Title, actual.Title, "titles are not equal")
-				require.Equal(t, tc.expectedPost.Content, actual.Content, "content is not equal")
+				require.Equal(t, tc.expected.ID, actual.ID, "IDs are not equal")
+				require.Equal(t, tc.expected.Title, actual.Title, "titles are not equal")
+				require.Equal(t, tc.expected.Content, actual.Content, "content is not equal")
 			} else {
 				require.Error(t, err, "no error")
 				require.Nil(t, actual, "post is not nil")
