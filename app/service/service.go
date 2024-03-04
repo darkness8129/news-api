@@ -51,6 +51,5 @@ type PostStorage interface {
 
 var (
 	ErrGetPostNotFound = errs.New(errs.Options{Message: "post not found", Code: postNotFoundErrCode})
-	ErrGetPostEmptyID  = errs.New(errs.Options{Message: "empty id"})
 	// other expected errors for this storage should be here
 )
