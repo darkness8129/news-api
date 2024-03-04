@@ -7,7 +7,6 @@ import (
 	"darkness8129/news-api/config"
 	"darkness8129/news-api/packages/database"
 	"darkness8129/news-api/packages/logging"
-	"fmt"
 	"log"
 	"os"
 	"testing"
@@ -111,21 +110,73 @@ func TestPostStorage_Create(t *testing.T) {
 			t.Parallel()
 			t.Cleanup(func() {
 				err := db.Exec("DELETE FROM posts;").Error
-				require.NoError(t, err)
+				require.NoError(t, err, "failed to delete posts")
 			})
 
 			actual, err := storage.Create(context.Background(), tc.input)
-			if tc.expectErr {
-				fmt.Println("ERROR: ", err)
-				require.Error(t, err, "no error")
-				require.Nil(t, actual, "post is not nil")
-			} else {
+			if !tc.expectErr {
+				require.NoError(t, err, "failed to create post")
 				require.NotEmpty(t, actual.ID, "id is empty")
 				require.Equal(t, tc.expected.Title, actual.Title, "titles are not equal")
 				require.Equal(t, tc.expected.Content, actual.Content, "content is not equal")
 				require.NotEmpty(t, actual.CreatedAt, "createdAt is empty")
 				require.NotEmpty(t, actual.UpdatedAt, "updatedAt is empty")
 				require.Empty(t, actual.DeletedAt, "deletedAt is not empty")
+			} else {
+				require.Error(t, err, "no error")
+				require.Nil(t, actual, "post is not nil")
+			}
+		})
+	}
+}
+
+func TestPostStorage_List(t *testing.T) {
+	testCases := []struct {
+		name          string
+		postsToCreate []entity.Post
+		expectedLen   int
+		expectErr     bool
+	}{
+		{
+			name:          "List 0 posts",
+			postsToCreate: []entity.Post{},
+			expectedLen:   0,
+		},
+		{
+			name: "List 2 posts",
+			postsToCreate: []entity.Post{
+				entity.Post{
+					Title:   "title",
+					Content: "content",
+				},
+				entity.Post{
+					Title:   "title",
+					Content: "content",
+				},
+			},
+			expectedLen: 2,
+		},
+	}
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Cleanup(func() {
+				err := db.Exec("DELETE FROM posts;").Error
+				require.NoError(t, err)
+			})
+
+			for _, p := range tc.postsToCreate {
+				_, err := storage.Create(context.Background(), &p)
+				require.NoError(t, err, "failed to create post")
+			}
+
+			actual, err := storage.List(context.Background())
+			if !tc.expectErr {
+				require.NoError(t, err, "failed to list posts")
+				require.Equal(t, tc.expectedLen, len(actual), "len is not equal")
+			} else {
+				require.Error(t, err, "no error")
+				require.Empty(t, actual, "slice is not empty")
 			}
 		})
 	}
