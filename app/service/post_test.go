@@ -122,7 +122,7 @@ func TestPostService_List(t *testing.T) {
 			expectedLen: 2,
 		},
 		{
-			name: "Create with unexpected error in storage",
+			name: "List with unexpected error in storage",
 			mock: func(m *mocks.PostStorage) {
 				m.On("List", context.Background()).Return(nil, errors.New("error!"))
 			},
@@ -341,7 +341,7 @@ func TestPostService_Delete(t *testing.T) {
 			inputID: postID,
 		},
 		{
-			name: "Update with unexpected error in storage",
+			name: "Delete with unexpected error in storage",
 			mock: func(m *mocks.PostStorage) {
 				m.On("Delete", context.Background(), postID).Return(errors.New("error!"))
 			},
