@@ -1,4 +1,3 @@
-```markdown
 # Architecture
 
 The API is built using Clean Architecture. The principles of DIP (Dependency Inversion Principle) and DI (Dependency Injection) are utilized. The error handling structure is designed to provide maximum flexibility at the API level and convenience for the client.
@@ -33,4 +32,3 @@ The documentation is available at the following link: http://localhost:8080/api/
 3. **Enhance Error Checking in Tests:** In all negative test cases, do not only check for the presence of an error (using expectErr) but also ensure that the error type is verified (whether it is expected or not, and if expected, what exactly it is).
 
 4. **Add Controller-Level Tests:** Implement controller-level tests using mocks for the service layer.
-```
