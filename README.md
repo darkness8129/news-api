@@ -1,4 +1,4 @@
-# Architecture
+## Architecture
 
 The API is built using Clean Architecture. The principles of DIP (Dependency Inversion Principle) and DI (Dependency Injection) are utilized. The error handling structure is designed to provide maximum flexibility at the API level and convenience for the client.
 
