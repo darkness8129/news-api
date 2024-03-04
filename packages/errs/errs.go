@@ -1,6 +1,6 @@
 package errs
 
-// Err provides a unified expected error used in the system, implements Error interface
+// Err provides a unified custom error used in the system, implements Error interface
 type Err struct {
 	Message string `json:"message"`
 	Code    string `json:"code"`
@@ -22,7 +22,7 @@ func (e *Err) Error() string {
 	return e.Message
 }
 
-func IsExpected(e error) bool {
+func IsCustom(e error) bool {
 	_, ok := e.(*Err)
 	return ok
 }

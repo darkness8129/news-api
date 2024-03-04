@@ -77,7 +77,7 @@ func (ctrl *postController) create(c *gin.Context) (interface{}, *httpErr) {
 		Content: body.Content,
 	})
 	if err != nil {
-		if errs.IsExpected(err) {
+		if errs.IsCustom(err) {
 			logger.Info(err.Error())
 			return nil, &httpErr{Type: httpErrTypeClient, Message: err.Error(), Code: errs.Code(err)}
 		}
@@ -105,7 +105,7 @@ func (ctrl *postController) list(c *gin.Context) (interface{}, *httpErr) {
 
 	posts, err := ctrl.services.Post.List(c)
 	if err != nil {
-		if errs.IsExpected(err) {
+		if errs.IsCustom(err) {
 			logger.Info(err.Error())
 			return nil, &httpErr{Type: httpErrTypeClient, Message: err.Error(), Code: errs.Code(err)}
 		}
@@ -151,7 +151,7 @@ func (ctrl *postController) get(c *gin.Context) (interface{}, *httpErr) {
 
 	post, err := ctrl.services.Post.Get(c, pathParams.ID)
 	if err != nil {
-		if errs.IsExpected(err) {
+		if errs.IsCustom(err) {
 			logger.Info(err.Error())
 			return nil, &httpErr{Type: httpErrTypeClient, Message: err.Error(), Code: errs.Code(err)}
 		}
@@ -210,7 +210,7 @@ func (ctrl *postController) update(c *gin.Context) (interface{}, *httpErr) {
 		Content: body.Content,
 	})
 	if err != nil {
-		if errs.IsExpected(err) {
+		if errs.IsCustom(err) {
 			logger.Info(err.Error())
 			return nil, &httpErr{Type: httpErrTypeClient, Message: err.Error(), Code: errs.Code(err)}
 		}
@@ -250,7 +250,8 @@ func (ctrl *postController) delete(c *gin.Context) (interface{}, *httpErr) {
 
 	err = ctrl.services.Post.Delete(c, pathParams.ID)
 	if err != nil {
-		if errs.IsExpected(err) {
+		if errs.IsCustom(err) {
+			logger.Info(err.Error())
 			return nil, &httpErr{Type: httpErrTypeClient, Message: err.Error(), Code: errs.Code(err)}
 		}
 

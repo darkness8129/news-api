@@ -59,18 +59,16 @@ func (p *postgreSQLDatabase) DB() interface{} {
 func (p *postgreSQLDatabase) Close() error {
 	logger := p.logger.Named("Close")
 
-	if p.DB != nil {
-		db, err := p.db.DB()
-		if err != nil {
-			logger.Error("failed to get db", "err", err)
-			return fmt.Errorf("failed to get db: %w", err)
-		}
+	db, err := p.db.DB()
+	if err != nil {
+		logger.Error("failed to get db", "err", err)
+		return fmt.Errorf("failed to get db: %w", err)
+	}
 
-		err = db.Close()
-		if err != nil {
-			logger.Error("failed to close postgresql connection", "err", err)
-			return fmt.Errorf("failed to close postgresql connection: %w", err)
-		}
+	err = db.Close()
+	if err != nil {
+		logger.Error("failed to close postgresql connection", "err", err)
+		return fmt.Errorf("failed to close postgresql connection: %w", err)
 	}
 
 	logger.Info("successfully closed connection to DB")

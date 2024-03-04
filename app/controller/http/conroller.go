@@ -74,7 +74,7 @@ func errorDecorator(logger logging.Logger, handler func(c *gin.Context) (interfa
 		defer func() {
 			err := recover()
 			if err != nil {
-				err := c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("%w", err))
+				err := c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("%v", err))
 				if err != nil {
 					logger.Error("failed to abort with error", "err", err)
 				}
