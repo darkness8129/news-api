@@ -11,6 +11,7 @@ type (
 	Config struct {
 		HTTP
 		PostgreSQL
+		Test
 	}
 
 	HTTP struct {
@@ -26,6 +27,14 @@ type (
 		Host     string `env:"POSTGRESQL_HOST" env-default:"localhost"`
 		Database string `env:"POSTGRESQL_DATABASE" env-default:"news_api"`
 		Port     string `env:"POSTGRESQL_PORT" env-default:"5432"`
+	}
+
+	Test struct {
+		PostgreSQLUser     string `env:"TEST_POSTGRESQL_USER" env-default:"postgres"`
+		PostgreSQLPassword string `env:"TEST_POSTGRESQL_PASSWORD" env-default:"postgres"`
+		PostgreSQLHost     string `env:"TEST_POSTGRESQL_HOST" env-default:"localhost"`
+		PostgreSQLDatabase string `env:"TEST_POSTGRESQL_DATABASE" env-default:"test_news_api"`
+		PostgreSQLPort     string `env:"TEST_POSTGRESQL_PORT" env-default:"5434"`
 	}
 )
 

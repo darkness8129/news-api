@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestErrs_Error(t *testing.T) {
@@ -39,7 +39,7 @@ func TestErrs_Error(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			actual := tc.inputErr.Error()
-			assert.Equal(t, tc.expected, actual, "messages are not equal; got: %s, want: %s", actual, tc.expected)
+			require.Equal(t, tc.expected, actual, "messages are not equal")
 		})
 	}
 }
@@ -70,7 +70,7 @@ func TestErrs_IsCustom(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			actual := IsCustom(tc.inputErr)
-			assert.Equal(t, tc.expected, actual, "not equal; got: %t, want: %t", actual, tc.expected)
+			require.Equal(t, tc.expected, actual, "isCustom not equal")
 		})
 	}
 }
@@ -116,7 +116,7 @@ func TestErrs_GetCode(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			actual := Code(tc.inputErr)
-			assert.Equal(t, tc.expected, actual, "codes are not equal; got: %s, want: %s", actual, tc.expected)
+			require.Equal(t, tc.expected, actual, "codes are not equal")
 		})
 	}
 }

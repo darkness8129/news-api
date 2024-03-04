@@ -1,16 +1,12 @@
-build:
-	echo "building..."
-	go build -o ./bin/news-api
-
-run:
+up:
 	echo "running..."
-	./bin/news-api
+	docker-compose up -d postgres
+	docker-compose up
 
-clean:
-	echo "cleaning..."
-	rm -r ./bin
-
-build_and_run: build run
+test:
+	echo "running tests..."
+	docker-compose up -d postgres_test
+	go test ./... -v
 
 docs:
 	echo "generating docs..."
