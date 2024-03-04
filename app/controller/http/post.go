@@ -231,7 +231,7 @@ type deletePostResponse struct {
 } // @name deletePostResponse
 
 // @ID           DeletePost
-// @Summary      DeletePost provides the logic for deleting a post by its ID.
+// @Summary      DeletePost provides the logic for deleting a post by its ID. If wrong ID is passed, an error will not be returned.
 // @Produce      application/json
 // @Param        id path string true "Post ID"
 // @Success      200 {object} deletePostResponse

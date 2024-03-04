@@ -58,7 +58,7 @@ func (s *postStorage) Get(ctx context.Context, id string) (*entity.Post, error) 
 		First(&post).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		logger.Info("post not found", "id", id)
-		return nil, nil
+		return nil, service.ErrGetPostNotFound
 	}
 	if err != nil {
 		logger.Error("failed to get post", "err", err)

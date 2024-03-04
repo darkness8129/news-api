@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"darkness8129/news-api/app/entity"
+	"darkness8129/news-api/packages/errs"
 	"darkness8129/news-api/packages/logging"
 	"fmt"
 )
@@ -26,6 +27,11 @@ func (s *postService) Create(ctx context.Context, opt CreatePostOpt) (*entity.Po
 		Content: opt.Content,
 	})
 	if err != nil {
+		if errs.IsCustom(err) {
+			logger.Info(err.Error())
+			return nil, err
+		}
+
 		logger.Error("failed to create post", "err", err)
 		return nil, fmt.Errorf("failed to create post: %w", err)
 	}
@@ -39,6 +45,11 @@ func (s *postService) List(ctx context.Context) ([]entity.Post, error) {
 
 	posts, err := s.storages.Post.List(ctx)
 	if err != nil {
+		if errs.IsCustom(err) {
+			logger.Info(err.Error())
+			return nil, err
+		}
+
 		logger.Error("failed to list posts", "err", err)
 		return nil, fmt.Errorf("failed to list posts: %w", err)
 	}
@@ -52,12 +63,13 @@ func (s *postService) Get(ctx context.Context, id string) (*entity.Post, error) 
 
 	post, err := s.storages.Post.Get(ctx, id)
 	if err != nil {
+		if errs.IsCustom(err) {
+			logger.Info(err.Error())
+			return nil, err
+		}
+
 		logger.Error("failed to get post", "err", err)
 		return nil, fmt.Errorf("failed to get post: %w", err)
-	}
-	if post == nil {
-		logger.Info("post not found", "id", id)
-		return nil, ErrGetPostNotFound
 	}
 
 	logger.Info("successfully got post", "post", post)
@@ -72,6 +84,11 @@ func (s *postService) Update(ctx context.Context, id string, opt UpdatePostOpt) 
 		Content: opt.Content,
 	})
 	if err != nil {
+		if errs.IsCustom(err) {
+			logger.Info(err.Error())
+			return nil, err
+		}
+
 		logger.Error("failed to update post", "err", err)
 		return nil, fmt.Errorf("failed to update post: %w", err)
 	}
@@ -85,6 +102,11 @@ func (s *postService) Delete(ctx context.Context, id string) error {
 
 	err := s.storages.Post.Delete(ctx, id)
 	if err != nil {
+		if errs.IsCustom(err) {
+			logger.Info(err.Error())
+			return err
+		}
+
 		logger.Error("failed to delete post", "err", err)
 		return fmt.Errorf("failed to delete post: %w", err)
 	}

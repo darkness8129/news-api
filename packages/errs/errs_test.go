@@ -22,11 +22,6 @@ func TestErrs_Error(t *testing.T) {
 			expected: "msg",
 		},
 		{
-			name:     "Error with no msg",
-			inputErr: New(Options{}),
-			expected: "",
-		},
-		{
 			name: "Error with empty msg",
 			inputErr: New(Options{
 				Message: "",
@@ -89,13 +84,6 @@ func TestErrs_GetCode(t *testing.T) {
 				Code:    "code",
 			}),
 			expected: "code",
-		},
-		{
-			name: "GetCode with no code",
-			inputErr: New(Options{
-				Message: "msg",
-			}),
-			expected: "",
 		},
 		{
 			name: "GetCode with empty code",

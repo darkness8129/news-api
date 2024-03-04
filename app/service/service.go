@@ -24,10 +24,7 @@ type PostService interface {
 	Delete(ctx context.Context, id string) error
 }
 
-var (
-	ErrGetPostNotFound = errs.New(errs.Options{Message: "post not found", Code: postNotFoundErrCode})
-	// other expected errors for this service should be here
-)
+// expected errors for this service should be here
 
 type CreatePostOpt struct {
 	Title   string
@@ -51,3 +48,9 @@ type PostStorage interface {
 	Update(ctx context.Context, id string, post *entity.Post) (*entity.Post, error)
 	Delete(ctx context.Context, id string) error
 }
+
+var (
+	ErrGetPostNotFound = errs.New(errs.Options{Message: "post not found", Code: postNotFoundErrCode})
+	ErrGetPostEmptyID  = errs.New(errs.Options{Message: "empty id"})
+	// other expected errors for this storage should be here
+)
